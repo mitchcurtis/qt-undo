@@ -1,6 +1,5 @@
 %modules = ( # path to module name map
-    "QtUndo" => "$basedir/src/undo",
-    "QtQuickTemplates" => "$basedir/src/templates",
+    "QtUndo" => "$basedir/src/undo"
 );
 %moduleheaders = ( # restrict the module headers to those found in relative path
 );
