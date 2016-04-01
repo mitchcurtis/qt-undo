@@ -1,7 +1,7 @@
 #include <QString>
 #include <QtTest>
 
-#include <UndoStack>
+#include <QtUndo/UndoStack>
 
 class tst_Undo : public QObject
 {

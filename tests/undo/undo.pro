@@ -1,5 +1,4 @@
-QT += testlib
-
+QT += testlib undo
 QT -= gui
 
 TARGET = tst_undo

@@ -21,6 +21,18 @@ UndoStack::UndoStack(QObject *parent) :
 {
 }
 
+bool UndoStack::canUndo() const
+{
+    // TODO
+    return false;
+}
+
+bool UndoStack::canRedo() const
+{
+    // TODO
+    return false;
+}
+
 const UndoCommand *UndoStack::command(int index) const
 {
     Q_D(const UndoStack);

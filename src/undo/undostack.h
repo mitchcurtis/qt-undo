@@ -20,20 +20,20 @@ public:
 
     bool canUndo() const;
     bool canRedo() const;
-    QString undoText() const;
-    QString redoText() const;
+//    QString undoText() const;
+//    QString redoText() const;
 
-    void setUndoLimit(int limit);
-    int undoLimit() const;
+//    void setUndoLimit(int limit);
+//    int undoLimit() const;
 
     const UndoCommand *command(int index) const;
 
-public Q_SLOTS:
-    void setClean();
-    void setIndex(int idx);
-    void undo();
-    void redo();
-    void setActive(bool active = true);
+//public Q_SLOTS:
+//    void setClean();
+//    void setIndex(int idx);
+//    void undo();
+//    void redo();
+//    void setActive(bool active = true);
 
 Q_SIGNALS:
     void canUndoChanged(bool canUndo);
