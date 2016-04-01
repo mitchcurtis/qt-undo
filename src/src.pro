@@ -1,16 +1,5 @@
-QT -= gui
+TEMPLATE = subdirs
 
-TARGET = undo
-TEMPLATE = lib
+SUBDIRS += \
+    undo
 
-DEFINES += UNDO_LIBRARY
-
-SOURCES += undocommand.cpp
-
-HEADERS += undocommand.h\
-        undo_global.h
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}

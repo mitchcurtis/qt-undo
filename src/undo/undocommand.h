@@ -1,14 +1,17 @@
 #ifndef UNDOCOMMAND_H
 #define UNDOCOMMAND_H
 
-#include "undo_global.h"
+#include <QtUndo/undo_global.h>
 
 #include <QObject>
 
-class UNDOSHARED_EXPORT UndoCommand : public QObject
+QT_BEGIN_NAMESPACE
+
+class UndoCommandPrivate;
+
+class Q_UNDO_EXPORT UndoCommand : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(UndoCommand)
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
 
 public:
@@ -25,6 +28,9 @@ Q_SIGNALS:
 
 private:
     Q_DISABLE_COPY(UndoCommand)
+    Q_DECLARE_PRIVATE(UndoCommand)
 };
+
+QT_END_NAMESPACE
 
 #endif // UNDOCOMMAND_H

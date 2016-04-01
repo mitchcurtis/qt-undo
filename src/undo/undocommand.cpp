@@ -1,5 +1,9 @@
 #include "undocommand.h"
 
+#include <QtCore/private/qobject_p.h>
+
+QT_BEGIN_NAMESPACE
+
 class UndoCommandPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(UndoCommand)
@@ -11,7 +15,7 @@ public:
 };
 
 UndoCommand::UndoCommand(QObject *parent) :
-    QObjectPrivate(new UndoCommandPrivate, parent)
+    QObject(*(new UndoCommandPrivate), parent)
 {
 }
 
@@ -31,7 +35,6 @@ void UndoCommand::setText(const QString &text)
     emit textChanged();
 }
 
-
 void UndoCommand::redo()
 {
     Q_D(UndoCommand);
@@ -42,6 +45,8 @@ void UndoCommand::redo()
 void UndoCommand::undo()
 {
     Q_D(UndoCommand);
-    for (int i = d->child_list.childCommands() - 1; i >= 0; --i)
+    for (int i = d->childCommands.size() - 1; i >= 0; --i)
         d->childCommands.at(i)->undo();
 }
+
+QT_END_NAMESPACE

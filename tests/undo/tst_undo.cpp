@@ -1,6 +1,8 @@
 #include <QString>
 #include <QtTest>
 
+#include <UndoStack>
+
 class tst_Undo : public QObject
 {
     Q_OBJECT
@@ -9,15 +11,16 @@ public:
     tst_Undo();
 
 private Q_SLOTS:
-    void testCase1();
+    void undo();
 };
 
 tst_Undo::tst_Undo()
 {
 }
 
-void tst_Undo::testCase1()
+void tst_Undo::undo()
 {
+    UndoStack undoStack;
     QVERIFY2(true, "Failure");
 }
 
