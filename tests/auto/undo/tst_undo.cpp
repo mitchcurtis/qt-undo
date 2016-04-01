@@ -512,7 +512,6 @@ void tst_Undo::undoRedo()
 
 void tst_Undo::setIndex()
 {
-    UndoStack stack;
     QString string;
 
     stack.setIndex(10); // should do nothing
