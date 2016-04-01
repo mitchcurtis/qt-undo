@@ -12,8 +12,8 @@ HEADERS += undo_global.h \
     undocommand.h \
     undocommand_p.h \
     undostack.h \
-    undogroup.h \
-    undostack_p.h
+    undostack_p.h \
+    undogroup.h
 
 SOURCES += undocommand.cpp \
     undostack.cpp \
