@@ -98,7 +98,6 @@ UndoCommand::~UndoCommand()
 {
     Q_D(UndoCommand);
     qDeleteAll(d->childCommands);
-    delete d;
 }
 
 /*!

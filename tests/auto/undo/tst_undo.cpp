@@ -9,8 +9,8 @@ public:
     InsertCommand(QString *str, int idx, const QString &text,
                     UndoCommand *parent = 0);
 
-    virtual void undo();
-    virtual void redo();
+    virtual void undo() override;
+    virtual void redo() override;
 
 private:
     QString *m_str;
@@ -23,8 +23,8 @@ class RemoveCommand : public UndoCommand
 public:
     RemoveCommand(QString *str, int idx, int len, UndoCommand *parent = 0);
 
-    virtual void undo();
-    virtual void redo();
+    virtual void undo() override;
+    virtual void redo() override;
 
 private:
     QString *m_str;
@@ -39,8 +39,8 @@ public:
                     UndoCommand *parent = 0);
     ~AppendCommand();
 
-    virtual void undo();
-    virtual void redo();
+    virtual void undo() override;
+    virtual void redo() override;
     virtual int id() const;
     virtual bool mergeWith(const UndoCommand *other);
 
@@ -51,16 +51,6 @@ public:
 private:
     QString *m_str;
     QString m_text;
-};
-
-class IdleCommand : public UndoCommand
-{
-public:
-    IdleCommand(UndoCommand *parent = 0);
-    ~IdleCommand();
-
-    virtual void undo();
-    virtual void redo();
 };
 
 InsertCommand::InsertCommand(QString *str, int idx, const QString &text,
@@ -161,26 +151,6 @@ bool AppendCommand::mergeWith(const UndoCommand *other)
     m_text += static_cast<const AppendCommand*>(other)->m_text;
     merged = true;
     return true;
-}
-
-IdleCommand::IdleCommand(UndoCommand *parent)
-    : UndoCommand(parent)
-{
-    // "idle-item" goes to UndoStack::{redo,undo}Text
-    // "idle-action" goes to all other places (e.g. QUndoView)
-    setText("idle-item\nidle-action");
-}
-
-IdleCommand::~IdleCommand()
-{
-}
-
-void IdleCommand::redo()
-{
-}
-
-void IdleCommand::undo()
-{
 }
 
 struct CheckStateArgs
@@ -326,6 +296,7 @@ void tst_Undo::undoRedo()
     args.indexChanged = false;
     args.undoChanged = false;
     args.redoChanged = false;
+    checkState(args);
 
     stack.undo(); // nothing to undo
     QCOMPARE(string, QString());
@@ -340,6 +311,7 @@ void tst_Undo::undoRedo()
     args.indexChanged = false;
     args.undoChanged = false;
     args.redoChanged = false;
+    checkState(args);
 
     stack.push(new InsertCommand(&string, 0, "hello"));
     QCOMPARE(string, QString("hello"));
@@ -354,6 +326,7 @@ void tst_Undo::undoRedo()
     args.indexChanged = true;
     args.undoChanged = true;
     args.redoChanged = true;
+    checkState(args);
 
     stack.push(new InsertCommand(&string, 2, "123"));
     QCOMPARE(string, QString("he123llo"));
@@ -368,7 +341,7 @@ void tst_Undo::undoRedo()
     args.indexChanged = true;
     args.undoChanged = true;
     args.redoChanged = true;
-
+    checkState(args);
 
     stack.undo();
     QCOMPARE(string, QString("hello"));
