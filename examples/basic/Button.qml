@@ -1,6 +1,7 @@
 import QtQuick 2.0
 
 Rectangle {
+    id: root
     implicitWidth: 100
     implicitHeight: 40
     color: "salmon"
@@ -11,10 +12,11 @@ Rectangle {
     Text {
         id: textItem
         color: "white"
+        anchors.centerIn: parent
     }
 
     MouseArea {
         anchors.fill: parent
-        onClicked: clicked()
+        onClicked: root.clicked()
     }
 }

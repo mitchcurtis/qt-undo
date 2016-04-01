@@ -1,15 +1,26 @@
 #include "customundostack.h"
 
-CustomUndoStack::CustomUndoStack()
+#include "addcommand.h"
+#include "deletecommand.h"
+
+CustomUndoStack::CustomUndoStack() :
+    mItemsAdded(0)
 {
 }
 
-void CustomUndoStack::pushItem(QQmlComponent *component)
+void CustomUndoStack::addItem(QQuickItem *itemParent, QQmlComponent *itemComponent)
 {
-    if (!component)
+    if (!itemParent || !itemComponent)
         return;
 
-    qDebug() << qmlContext(this);
-//    QQuickItem *item = component->create();
-//    mItems.append(item);
+    QQuickItem *item = qobject_cast<QQuickItem*>(itemComponent->create());
+    if (!item) {
+        qWarning() << "Failed to create item";
+        return;
+    }
+
+    item->setX(mItemsAdded * 25);
+    item->setY(mItemsAdded * 25);
+    push(new AddCommand(itemParent, item));
+    ++mItemsAdded;
 }

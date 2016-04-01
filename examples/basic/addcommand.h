@@ -8,9 +8,13 @@ class AddCommand : public UndoCommand
 {
 public:
     AddCommand(QQuickItem *itemParent, QQuickItem *item);
+    ~AddCommand();
 
     void undo() override;
     void redo() override;
+
+private slots:
+    void cleanUp();
 
 private:
     QQuickItem *mItemParent;

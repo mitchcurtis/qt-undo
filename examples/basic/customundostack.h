@@ -8,13 +8,15 @@
 
 class CustomUndoStack : public UndoStack
 {
+    Q_OBJECT
+
 public:
     CustomUndoStack();
 
-    Q_INVOKABLE void pushItem(QQmlComponent *component);
+    Q_INVOKABLE void addItem(QQuickItem *itemParent, QQmlComponent *component);
 
 private:
-    QVector<QQuickItem *> mItems;
+    int mItemsAdded;
 };
 
 #endif // CUSTOMUNDOSTACK_H

@@ -19,7 +19,7 @@ public:
     ~UndoStack();
 
     void clear();
-    void push(UndoCommand *cmd);
+    void push(UndoCommand *command);
 
     bool canUndo() const;
     bool canRedo() const;
