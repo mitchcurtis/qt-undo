@@ -35,8 +35,7 @@ private:
 class AppendCommand : public UndoCommand
 {
 public:
-    AppendCommand(QString *str, const QString &text, bool _fail_merge = false,
-                    UndoCommand *parent = 0);
+    AppendCommand(QString *str, const QString &text, bool failMerge = false, UndoCommand *parent = 0);
     ~AppendCommand();
 
     virtual void undo() override;
@@ -45,25 +44,23 @@ public:
     virtual bool mergeWith(const UndoCommand *other);
 
     bool merged;
-    bool fail_merge;
-    static int delete_cnt;
+    bool failMerge;
+    static int deleteCount;
 
 private:
     QString *m_str;
     QString m_text;
 };
 
-InsertCommand::InsertCommand(QString *str, int idx, const QString &text,
-                            UndoCommand *parent)
-    : UndoCommand(parent)
+InsertCommand::InsertCommand(QString *str, int idx, const QString &text, UndoCommand *parent) :
+    UndoCommand(parent),
+    m_str(str),
+    m_idx(idx),
+    m_text(text)
 {
     QVERIFY(str->length() >= idx);
 
     setText("insert");
-
-    m_str = str;
-    m_idx = idx;
-    m_text = text;
 }
 
 void InsertCommand::redo()
@@ -106,23 +103,21 @@ void RemoveCommand::undo()
     m_str->insert(m_idx, m_text);
 }
 
-int AppendCommand::delete_cnt = 0;
+int AppendCommand::deleteCount = 0;
 
-AppendCommand::AppendCommand(QString *str, const QString &text, bool _fail_merge,
-                                UndoCommand *parent)
-    : UndoCommand(parent)
+AppendCommand::AppendCommand(QString *str, const QString &text, bool failMerge, UndoCommand *parent) :
+    UndoCommand(parent),
+    merged(false),
+    failMerge(failMerge),
+    m_str(str),
+    m_text(text)
 {
     setText("append");
-
-    m_str = str;
-    m_text = text;
-    merged = false;
-    fail_merge = _fail_merge;
 }
 
 AppendCommand::~AppendCommand()
 {
-    ++delete_cnt;
+    ++deleteCount;
 }
 
 void AppendCommand::redo()
@@ -146,7 +141,7 @@ bool AppendCommand::mergeWith(const UndoCommand *other)
 {
     if (other->id() != id())
         return false;
-    if (fail_merge)
+    if (failMerge)
         return false;
     m_text += static_cast<const AppendCommand*>(other)->m_text;
     merged = true;
@@ -1341,7 +1336,7 @@ void tst_UndoStack::compression()
 {
     QString string;
 
-    AppendCommand::delete_cnt = 0;
+    AppendCommand::deleteCount = 0;
 
     stack.push(new InsertCommand(&string, 0, "ene"));
     QCOMPARE(string, QString("ene"));
@@ -1376,7 +1371,7 @@ void tst_UndoStack::compression()
 
     stack.push(new AppendCommand(&string, " rike")); // #2 should merge
     QCOMPARE(string, QString("ene due rike"));
-    QCOMPARE(AppendCommand::delete_cnt, 1); // #2 should be deleted
+    QCOMPARE(AppendCommand::deleteCount, 1); // #2 should be deleted
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1406,7 +1401,7 @@ void tst_UndoStack::compression()
 
     stack.push(new AppendCommand(&string, " fake")); // #3 should NOT merge, since the stack was clean
     QCOMPARE(string, QString("ene due rike fake"));  // and we want to be able to return to this state
-    QCOMPARE(AppendCommand::delete_cnt, 1); // #3 should not be deleted
+    QCOMPARE(AppendCommand::deleteCount, 1); // #3 should not be deleted
     args.clean = false;
     args.count = 3;
     args.index = 3;
@@ -1452,7 +1447,7 @@ void tst_UndoStack::compression()
 
     stack.push(new AppendCommand(&string, "ma", true)); // #4 clean state gets deleted!
     QCOMPARE(string, QString("enema"));
-    QCOMPARE(AppendCommand::delete_cnt, 3); // #1 got deleted
+    QCOMPARE(AppendCommand::deleteCount, 3); // #1 got deleted
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1468,7 +1463,7 @@ void tst_UndoStack::compression()
 
     stack.push(new AppendCommand(&string, "trix")); // #5 should NOT merge
     QCOMPARE(string, QString("enematrix"));
-    QCOMPARE(AppendCommand::delete_cnt, 3);
+    QCOMPARE(AppendCommand::deleteCount, 3);
     args.clean = false;
     args.count = 3;
     args.index = 3;
@@ -1516,7 +1511,7 @@ void tst_UndoStack::compression()
 
     stack.beginMacro("ding");
     QCOMPARE(string, QString("enema"));
-    QCOMPARE(AppendCommand::delete_cnt, 4); // #5 gets deleted
+    QCOMPARE(AppendCommand::deleteCount, 4); // #5 gets deleted
     args.clean = false;
     args.count = 3;
     args.index = 2;
@@ -1550,7 +1545,7 @@ void tst_UndoStack::compression()
     stack.push(new AppendCommand(&string, "eja")); // #7 should merge
     QCOMPARE(string, QString("enematopeja"));
     QCOMPARE(merge_cmd->merged, true);
-    QCOMPARE(AppendCommand::delete_cnt, 5); // #7 gets deleted
+    QCOMPARE(AppendCommand::deleteCount, 5); // #7 gets deleted
     args.clean = false;
     args.count = 3;
     args.index = 2;
@@ -1629,7 +1624,7 @@ void tst_UndoStack::compression()
 
 void tst_UndoStack::undoLimit()
 {
-    AppendCommand::delete_cnt = 0;
+    AppendCommand::deleteCount = 0;
     QString string;
 
     QCOMPARE(stack.undoLimit(), 0);
@@ -1638,7 +1633,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "1", true));
     QCOMPARE(string, QString("1"));
-    QCOMPARE(AppendCommand::delete_cnt, 0);
+    QCOMPARE(AppendCommand::deleteCount, 0);
     CheckStateArgs args;
     args.clean = false;
     args.count = 1;
@@ -1655,7 +1650,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "2", true));
     QCOMPARE(string, QString("12"));
-    QCOMPARE(AppendCommand::delete_cnt, 0);
+    QCOMPARE(AppendCommand::deleteCount, 0);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1671,7 +1666,7 @@ void tst_UndoStack::undoLimit()
 
     stack.setClean();
     QCOMPARE(string, QString("12"));
-    QCOMPARE(AppendCommand::delete_cnt, 0);
+    QCOMPARE(AppendCommand::deleteCount, 0);
     args.clean = true;
     args.count = 2;
     args.index = 2;
@@ -1687,7 +1682,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "3", true));
     QCOMPARE(string, QString("123"));
-    QCOMPARE(AppendCommand::delete_cnt, 1);
+    QCOMPARE(AppendCommand::deleteCount, 1);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1703,7 +1698,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "4", true));
     QCOMPARE(string, QString("1234"));
-    QCOMPARE(AppendCommand::delete_cnt, 2);
+    QCOMPARE(AppendCommand::deleteCount, 2);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1719,7 +1714,7 @@ void tst_UndoStack::undoLimit()
 
     stack.undo();
     QCOMPARE(string, QString("123"));
-    QCOMPARE(AppendCommand::delete_cnt, 2);
+    QCOMPARE(AppendCommand::deleteCount, 2);
     args.clean = false;
     args.count = 2;
     args.index = 1;
@@ -1735,7 +1730,7 @@ void tst_UndoStack::undoLimit()
 
     stack.undo();
     QCOMPARE(string, QString("12"));
-    QCOMPARE(AppendCommand::delete_cnt, 2);
+    QCOMPARE(AppendCommand::deleteCount, 2);
     args.clean = true;
     args.count = 2;
     args.index = 0;
@@ -1751,7 +1746,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "3", true));
     QCOMPARE(string, QString("123"));
-    QCOMPARE(AppendCommand::delete_cnt, 4);
+    QCOMPARE(AppendCommand::deleteCount, 4);
     args.clean = false;
     args.count = 1;
     args.index = 1;
@@ -1767,7 +1762,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "4", true));
     QCOMPARE(string, QString("1234"));
-    QCOMPARE(AppendCommand::delete_cnt, 4);
+    QCOMPARE(AppendCommand::deleteCount, 4);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1783,7 +1778,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "5", true));
     QCOMPARE(string, QString("12345"));
-    QCOMPARE(AppendCommand::delete_cnt, 5);
+    QCOMPARE(AppendCommand::deleteCount, 5);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1799,7 +1794,7 @@ void tst_UndoStack::undoLimit()
 
     stack.undo();
     QCOMPARE(string, QString("1234"));
-    QCOMPARE(AppendCommand::delete_cnt, 5);
+    QCOMPARE(AppendCommand::deleteCount, 5);
     args.clean = false;
     args.count = 2;
     args.index = 1;
@@ -1815,7 +1810,7 @@ void tst_UndoStack::undoLimit()
 
     stack.undo();
     QCOMPARE(string, QString("123"));
-    QCOMPARE(AppendCommand::delete_cnt, 5);
+    QCOMPARE(AppendCommand::deleteCount, 5);
     args.clean = false;
     args.count = 2;
     args.index = 0;
@@ -1831,7 +1826,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "4", true));
     QCOMPARE(string, QString("1234"));
-    QCOMPARE(AppendCommand::delete_cnt, 7);
+    QCOMPARE(AppendCommand::deleteCount, 7);
     args.clean = false;
     args.count = 1;
     args.index = 1;
@@ -1847,7 +1842,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "5"));
     QCOMPARE(string, QString("12345"));
-    QCOMPARE(AppendCommand::delete_cnt, 7);
+    QCOMPARE(AppendCommand::deleteCount, 7);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1863,7 +1858,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "6", true)); // should be merged
     QCOMPARE(string, QString("123456"));
-    QCOMPARE(AppendCommand::delete_cnt, 8);
+    QCOMPARE(AppendCommand::deleteCount, 8);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1879,7 +1874,7 @@ void tst_UndoStack::undoLimit()
 
     stack.beginMacro("foo");
     QCOMPARE(string, QString("123456"));
-    QCOMPARE(AppendCommand::delete_cnt, 8);
+    QCOMPARE(AppendCommand::deleteCount, 8);
     args.clean = false;
     args.count = 3;
     args.index = 2;
@@ -1895,7 +1890,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "7", true));
     QCOMPARE(string, QString("1234567"));
-    QCOMPARE(AppendCommand::delete_cnt, 8);
+    QCOMPARE(AppendCommand::deleteCount, 8);
     args.clean = false;
     args.count = 3;
     args.index = 2;
@@ -1911,7 +1906,7 @@ void tst_UndoStack::undoLimit()
 
     stack.push(new AppendCommand(&string, "8"));
     QCOMPARE(string, QString("12345678"));
-    QCOMPARE(AppendCommand::delete_cnt, 8);
+    QCOMPARE(AppendCommand::deleteCount, 8);
     args.clean = false;
     args.count = 3;
     args.index = 2;
@@ -1927,7 +1922,7 @@ void tst_UndoStack::undoLimit()
 
     stack.endMacro();
     QCOMPARE(string, QString("12345678"));
-    QCOMPARE(AppendCommand::delete_cnt, 9);
+    QCOMPARE(AppendCommand::deleteCount, 9);
     args.clean = false;
     args.count = 2;
     args.index = 2;
@@ -1943,7 +1938,7 @@ void tst_UndoStack::undoLimit()
 
     stack.undo();
     QCOMPARE(string, QString("123456"));
-    QCOMPARE(AppendCommand::delete_cnt, 9);
+    QCOMPARE(AppendCommand::deleteCount, 9);
     args.clean = false;
     args.count = 2;
     args.index = 1;
@@ -1959,7 +1954,7 @@ void tst_UndoStack::undoLimit()
 
     stack.undo();
     QCOMPARE(string, QString("1234"));
-    QCOMPARE(AppendCommand::delete_cnt, 9);
+    QCOMPARE(AppendCommand::deleteCount, 9);
     args.clean = false;
     args.count = 2;
     args.index = 0;
