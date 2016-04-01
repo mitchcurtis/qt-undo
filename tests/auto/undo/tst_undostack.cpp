@@ -181,11 +181,11 @@ struct CheckStateArgs
     bool redoChanged;
 };
 
-class tst_Undo : public QObject
+class tst_UndoStack : public QObject
 {
     Q_OBJECT
 public:
-    tst_Undo();
+    tst_UndoStack();
 
 private slots:
     void cleanup();
@@ -211,7 +211,7 @@ private:
     QSignalSpy redoTextChangedSpy;
 };
 
-tst_Undo::tst_Undo() :
+tst_UndoStack::tst_UndoStack() :
     indexChangedSpy(&stack, SIGNAL(indexChanged(int))),
     cleanChangedSpy(&stack, SIGNAL(cleanChanged(bool))),
     canUndoChangedSpy(&stack, SIGNAL(canUndoChanged(bool))),
@@ -221,7 +221,7 @@ tst_Undo::tst_Undo() :
 {
 }
 
-void tst_Undo::cleanup()
+void tst_UndoStack::cleanup()
 {
     stack.clear();
     indexChangedSpy.clear();
@@ -232,7 +232,7 @@ void tst_Undo::cleanup()
     redoTextChangedSpy.clear();
 }
 
-void tst_Undo::checkState(const CheckStateArgs &args)
+void tst_UndoStack::checkState(const CheckStateArgs &args)
 {
     QCOMPARE(stack.count(), args.count);
     QCOMPARE(stack.isClean(), args.clean);
@@ -279,7 +279,7 @@ void tst_Undo::checkState(const CheckStateArgs &args)
     }
 }
 
-void tst_Undo::undoRedo()
+void tst_UndoStack::undoRedo()
 {
     QString string;
 
@@ -510,7 +510,7 @@ void tst_Undo::undoRedo()
     checkState(args);
 }
 
-void tst_Undo::setIndex()
+void tst_UndoStack::setIndex()
 {
     QString string;
 
@@ -678,7 +678,7 @@ void tst_Undo::setIndex()
     checkState(args);
 }
 
-void tst_Undo::setClean()
+void tst_UndoStack::setClean()
 {
     QString string;
 
@@ -843,7 +843,7 @@ void tst_Undo::setClean()
     QCOMPARE(stack.cleanIndex(), -1);
 }
 
-void tst_Undo::clear()
+void tst_UndoStack::clear()
 {
     QString string;
 
@@ -968,7 +968,7 @@ void tst_Undo::clear()
     checkState(args);
 }
 
-void tst_Undo::childCommand()
+void tst_UndoStack::childCommand()
 {
     QString string;
 
@@ -1038,7 +1038,7 @@ void tst_Undo::childCommand()
     checkState(args);
 }
 
-void tst_Undo::macroBeginEnd()
+void tst_UndoStack::macroBeginEnd()
 {
     QString string;
 
@@ -1337,7 +1337,7 @@ void tst_Undo::macroBeginEnd()
     checkState(args);
 }
 
-void tst_Undo::compression()
+void tst_UndoStack::compression()
 {
     QString string;
 
@@ -1627,7 +1627,7 @@ void tst_Undo::compression()
     checkState(args);
 }
 
-void tst_Undo::undoLimit()
+void tst_UndoStack::undoLimit()
 {
     AppendCommand::delete_cnt = 0;
     QString string;
@@ -1974,6 +1974,6 @@ void tst_Undo::undoLimit()
     checkState(args);
 }
 
-QTEST_APPLESS_MAIN(tst_Undo)
+QTEST_APPLESS_MAIN(tst_UndoStack)
 
-#include "tst_undo.moc"
+#include "tst_undostack.moc"

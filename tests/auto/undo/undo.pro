@@ -7,5 +7,6 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += tst_undo.cpp
+SOURCES += \
+    tst_undostack.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
