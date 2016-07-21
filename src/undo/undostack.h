@@ -15,7 +15,7 @@ class Q_UNDO_EXPORT UndoStack : public QObject
     Q_OBJECT
 
 public:
-    explicit UndoStack(QObject *parent = 0);
+    explicit UndoStack(QObject *parent = nullptr);
     ~UndoStack();
 
     void clear();

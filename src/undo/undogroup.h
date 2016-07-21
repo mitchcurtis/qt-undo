@@ -13,7 +13,7 @@ class Q_UNDO_EXPORT UndoGroup : public QObject
 {
     Q_OBJECT
 public:
-    explicit UndoGroup(QObject *parent = 0);
+    explicit UndoGroup(QObject *parent = nullptr);
     ~UndoGroup();
 
     void addStack(UndoStack *stack);
